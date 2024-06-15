@@ -14,8 +14,8 @@
 
 Create a **.env** file in the project directory and fill it with your data:
     
-    TELEGRAM_BOT_TOKEN         - токен вашего телеграм бота
-    OPENAI_API_KEY             - ваш токен, полученный от OpenAI
+    TELEGRAM_BOT_TOKEN         - your Telegram bot token
+    OPENAI_API_KEY             - your token received from OpenAI
 
 ***Step 3:***
 
