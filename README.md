@@ -35,6 +35,8 @@ You can create a virtual environment.
 
 ### Launch
 
+---
+
     python bot.py
 
 **P.S.** If you have message *"Unfortunately, using a chatbot is prohibited in your region :("* turn on VPN
