@@ -22,14 +22,17 @@ async def start_handler(message: Message):
 @dp.message(F.voice)
 async def voice_message_handler(message: Message):
     """Receives voice messages and answers to them."""
-    temp_bot_message = await message.answer("I'm thinking about the answer...")
     file_names = []
 
     logging.info(f'Get voice file from {message.from_user.first_name} {message.from_user.last_name}')
     question_file_name = await BotFileManager.get_voice_file(bot, message.voice)
     file_names.append(question_file_name)
+    try:
+        if ai.permission is False:
+            raise Exception("Unfortunately, using a chatbot is prohibited in your region :(")
 
-    if ai.permission is True:
+        temp_bot_message = await message.answer("I'm thinking about the answer...")
+
         logging.info(f'Convert question from voice file to text')
         text_question = await ai.speech_to_text(question_file_name)
 
@@ -43,19 +46,18 @@ async def voice_message_handler(message: Message):
 
             logging.info(f'Send voice answer to {message.from_user.first_name} {message.from_user.last_name}')
             await bot.send_voice(chat_id=message.chat.id, voice=voice_answer, reply_to_message_id=message.message_id)
-
-            logging.info(f'Remove temporary files with such extensions as .wav, .mp3')
-            await BotFileManager.remove_voice_files(file_names)
         else:  # Run status is false (error)
             logging.error(f'Run error: {text_answer}')
             await message.reply("Unfortunately, I can't answer your question")
-    else:
-        logging.error(f'Permission denied')
-        error_answer = "Unfortunately, using a chatbot is prohibited in your region :("
-        await message.reply(error_answer)
 
-    logging.info(f'Remove last bot message')
-    await bot.delete_message(chat_id=message.chat.id, message_id=temp_bot_message.message_id)
+        logging.info(f'Remove last bot message')
+        await bot.delete_message(chat_id=temp_bot_message.chat.id, message_id=temp_bot_message.message_id)
+    except Exception as e:
+        logging.error(f'Exception: {str(e)}')
+        await message.reply(str(e))
+    finally:
+        logging.info(f'Remove temporary files with such extensions as .wav, .mp3')
+        await BotFileManager.remove_voice_files(file_names)
 
 
 @dp.message()

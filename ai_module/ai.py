@@ -11,16 +11,15 @@ class AI:
 
     def __init__(self):
         """Initialize object of AI class"""
-        try:
-            self.thread = AI.__client.beta.threads.create()
-            self.permission = True
-        except openai.PermissionDeniedError:
-            self.permission = False
+        self.permission = True
 
     async def init_assistant(self):
         """Initialize assistant"""
-        self.__assistant = await self.__client.beta.assistants.create(
-            name="Jarvis", instructions="", model='gpt-4-1106-preview')
+        try:
+            self.__assistant = await self.__client.beta.assistants.create(
+                name="Jarvis", instructions="", model='gpt-4-1106-preview')
+        except openai.PermissionDeniedError:
+            self.permission = False
 
     async def speech_to_text(self, file_name: str) -> str:
         """Translate voice file to text"""
