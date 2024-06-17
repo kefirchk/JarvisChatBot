@@ -21,9 +21,8 @@ class BotFileManager:
         return wav_file_name
 
     @staticmethod
-    def remove_voice_files(wav_file_name, mp3_file_name) -> None:
+    async def remove_voice_files(file_names) -> None:
         """Remove files with such extensions as .wav, .mp3"""
-        if os.path.exists(wav_file_name):
-            os.remove(wav_file_name)
-        if os.path.exists(mp3_file_name):
-            os.remove(mp3_file_name)
+        for fn in file_names:
+            if os.path.exists(fn):
+                os.remove(fn)

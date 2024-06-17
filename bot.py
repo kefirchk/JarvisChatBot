@@ -23,9 +23,11 @@ async def start_handler(message: Message):
 async def voice_message_handler(message: Message):
     """Receives voice messages and answers to them."""
     temp_bot_message = await message.answer("I'm thinking about the answer...")
+    file_names = []
 
     logging.info(f'Get voice file from {message.from_user.first_name} {message.from_user.last_name}')
     question_file_name = await BotFileManager.get_voice_file(bot, message.voice)
+    file_names.append(question_file_name)
 
     if ai.permission is True:
         logging.info(f'Convert question from voice file to text')
@@ -36,13 +38,14 @@ async def voice_message_handler(message: Message):
         if answer_status is True:
             logging.info(f'Convert answer from text to voice file')
             answer_file_name = f"answer_{message.voice.file_unique_id}.mp3"
+            file_names.append(answer_file_name)
             voice_answer = await ai.text_to_speech(text=text_answer, file_name=answer_file_name)
 
             logging.info(f'Send voice answer to {message.from_user.first_name} {message.from_user.last_name}')
             await bot.send_voice(chat_id=message.chat.id, voice=voice_answer, reply_to_message_id=message.message_id)
 
             logging.info(f'Remove temporary files with such extensions as .wav, .mp3')
-            BotFileManager.remove_voice_files(question_file_name, answer_file_name)
+            await BotFileManager.remove_voice_files(file_names)
         else:  # Run status is false (error)
             logging.error(f'Run error: {text_answer}')
             await message.reply("Unfortunately, I can't answer your question")
