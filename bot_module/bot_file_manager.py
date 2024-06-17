@@ -1,6 +1,5 @@
 import io
 import os
-import glob
 
 from aiogram import Bot
 from aiogram.types import Voice
@@ -22,7 +21,9 @@ class BotFileManager:
         return wav_file_name
 
     @staticmethod
-    def remove_voice_files() -> None:
+    def remove_voice_files(wav_file_name, mp3_file_name) -> None:
         """Remove files with such extensions as .wav, .mp3"""
-        for file in glob.glob("*.wav") + glob.glob("*.mp3"):
-            os.remove(file)
+        if os.path.exists(wav_file_name):
+            os.remove(wav_file_name)
+        if os.path.exists(mp3_file_name):
+            os.remove(mp3_file_name)

@@ -1,45 +1,54 @@
 import openai
-import time
 from settings import AI_TOKEN
 from aiogram.types import FSInputFile
 
 
 class AI:
     """Class of AI assistant based on OpenAI"""
+
+    __client = openai.AsyncOpenAI(api_key=AI_TOKEN)
+    __assistant = None
+
     def __init__(self):
         """Initialize object of AI class"""
         try:
-            self.client = openai.OpenAI(api_key=AI_TOKEN)
-            self.thread = self.client.beta.threads.create()
-            self.permision = True
+            self.thread = AI.__client.beta.threads.create()
+            self.permission = True
         except openai.PermissionDeniedError:
-            self.permision = False
+            self.permission = False
 
-    def speech_to_text(self, file_name: str) -> str:
+    async def init_assistant(self):
+        """Initialize assistant"""
+        self.__assistant = await self.__client.beta.assistants.create(
+            name="Jarvis", instructions="", model='gpt-4-1106-preview')
+
+    async def speech_to_text(self, file_name: str) -> str:
         """Translate voice file to text"""
         with open(file_name, "rb") as voice_file:
-            transcript = self.client.audio.transcriptions.create(model="whisper-1", file=voice_file)
+            transcript = await AI.__client.audio.transcriptions.create(model="whisper-1", file=voice_file)
             return transcript.text
 
-    def text_to_speech(self, text: str, file_name: str = f"answer_{time.time()}") -> FSInputFile:
+    async def text_to_speech(self, text: str, file_name: str) -> FSInputFile:
         """Translate text to voice file"""
-        speech_file_name = f"{file_name}.mp3"
-        response = self.client.audio.speech.create(model="tts-1", voice="alloy", input=text)
-        response.write_to_file(speech_file_name)
-        voice_file = FSInputFile(speech_file_name)
+        response = await AI.__client.audio.speech.create(model="tts-1", voice="alloy", input=text)
+        response.write_to_file(file_name)
+        voice_file = FSInputFile(file_name)
         return voice_file
 
-    def get_answer(self, question: str) -> str:
+    async def get_answer(self, question: str):
         """Get answer on the question"""
-        ai_thread = self.client.beta.threads.create()
-        assistant = self.client.beta.assistants.create(name="Jarvis", instructions="", model='gpt-4-1106-preview')
-        self.client.beta.threads.messages.create(thread_id=ai_thread.id, role='user', content=question)
-        run = self.client.beta.threads.runs.create(thread_id=ai_thread.id, assistant_id=assistant.id)
+        ai_thread = await AI.__client.beta.threads.create()
+        await AI.__client.beta.threads.messages.create(thread_id=ai_thread.id, role='user', content=question)
+        run = await AI.__client.beta.threads.runs.create_and_poll(thread_id=ai_thread.id, assistant_id=self.__assistant.id)
 
-        while run.status != 'completed':
-            run = self.client.beta.threads.runs.retrieve(thread_id=ai_thread.id, run_id=run.id)
-            time.sleep(1)
-
-        messages = self.client.beta.threads.messages.list(thread_id=ai_thread.id)
-        answer = messages.data[0].content[0].text.value
-        return answer
+        if run.status in ['completed', 'requires_action', 'failed']:
+            if run.status == 'completed':
+                messages = await AI.__client.beta.threads.messages.list(thread_id=ai_thread.id)
+                answer = messages.data[0].content[0].text.value
+                return answer, True
+            elif run.status == 'requires_action':
+                return "The task requires further action.", False
+            elif run.status == 'failed':
+                return "The task failed to complete.", False
+        else:
+            return "The task is still in progress or has an unknown status.", False
