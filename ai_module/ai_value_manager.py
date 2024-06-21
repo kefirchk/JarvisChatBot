@@ -80,8 +80,6 @@ class AIValueManager:
     async def save_values_in_db(self, user_id, values):
         """Save valid user's values in database."""
         logging.info(f"Saving in the database values: {values}, user ID: {user_id}")
-
-        # await self.__db.create_table()
-
+        await self.__db.create_table()
         for value in values:
             await self.__db.insert_data(user_id, value)
