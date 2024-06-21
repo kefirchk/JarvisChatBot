@@ -15,7 +15,7 @@
 Create a **.env** file in the project directory and fill it with your data:
     
     TELEGRAM_BOT_TOKEN         - your Telegram bot token
-    OPENAI_API_KEY             - your token received from OpenAI
+    OPENAI_API_TOKEN             - your token received from OpenAI
     ASSISTANT_ID               - assistant id of OpenAI
     DB_HOST                    - ip address of your database
     DB_PORT                    - port of database
