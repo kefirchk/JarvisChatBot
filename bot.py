@@ -3,12 +3,12 @@ import logging
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message
-from settings import BOT_TOKEN
+from settings import settings
 from bot_module import BotFileManager
 from ai_module import AI
 
 
-bot = Bot(BOT_TOKEN)
+bot = Bot(settings.TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 ai = AI()
 
@@ -23,6 +23,11 @@ async def start_handler(message: Message):
 async def voice_message_handler(message: Message):
     """Receives voice messages and answers to them."""
     file_names = []
+    user_info = {
+        'user_id': message.from_user.id,
+        'first_name': message.from_user.first_name,
+        'last_name': message.from_user.last_name
+    }
 
     logging.info(f'Get voice file from {message.from_user.first_name} {message.from_user.last_name}')
     question_file_name = await BotFileManager.get_voice_file(bot, message.voice)
@@ -37,7 +42,7 @@ async def voice_message_handler(message: Message):
         text_question = await ai.speech_to_text(question_file_name)
 
         logging.info(f'Answer the question')
-        text_answer, answer_status = await ai.get_answer(text_question)
+        text_answer, answer_status = await ai.get_answer(text_question, user_info)
         if answer_status is True:
             logging.info(f'Convert answer from text to voice file')
             answer_file_name = f"answer_{message.voice.file_unique_id}.mp3"
@@ -51,7 +56,7 @@ async def voice_message_handler(message: Message):
             await message.reply("Unfortunately, I can't answer your question")
 
         logging.info(f'Remove last bot message')
-        await bot.delete_message(chat_id=temp_bot_message.chat.id, message_id=temp_bot_message.message_id)
+        await bot.delete_message(chat_id=message.chat.id, message_id=temp_bot_message.message_id)
     except Exception as e:
         logging.error(f'Exception: {str(e)}')
         await message.reply(str(e))
@@ -67,7 +72,7 @@ async def default_handler(message: Message):
 
 
 async def main():
-    await ai.init_assistant()
+    await ai.init_assistant(settings.ASSISTANT_ID)
     logging.basicConfig(level=logging.INFO)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
