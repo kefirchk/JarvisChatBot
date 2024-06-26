@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     OPENAI_API_TOKEN: str = Field(env_prefix="OPENAI_API_KEY")
     TELEGRAM_BOT_TOKEN: str = Field(env_prefix="TELEGRAM_BOT_TOKEN")
     ASSISTANT_ID: str = Field(env_prefix="ASSISTANT_ID")
+    AMPLITUDE_API_KEY: str = Field(env_prefix="AMPLITUDE_API_KEY")
 
     DB_HOST: str = Field(env_prefix="DB_HOST")
     DB_PORT: str = Field(env_prefix="DB_PORT")

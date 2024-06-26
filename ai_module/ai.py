@@ -4,6 +4,7 @@ import openai
 from settings import settings
 from aiogram.types import FSInputFile
 from .ai_value_manager import AIValueManager
+from .ai_photo_manager import AIPhotoManager
 from .ai_config import AI_TOOLS, ASSISTANT_INSTRUCTIONS, AI_NAME
 
 
@@ -13,6 +14,7 @@ class AI:
     __client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_TOKEN)
     __assistant = None
     __ai_value_manager = AIValueManager(__client)
+    ai_photo_manager = AIPhotoManager(__client)
 
     async def init_assistant(self, assistant_id):
         """Initialize assistant"""

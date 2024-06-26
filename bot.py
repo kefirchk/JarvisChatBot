@@ -6,17 +6,40 @@ from aiogram.types import Message
 from settings import settings
 from bot_module import BotFileManager
 from ai_module import AI
+from amplitude_module import AmplitudeEventTracker
 
 
 bot = Bot(settings.TELEGRAM_BOT_TOKEN)
 dp = Dispatcher()
 ai = AI()
+event_tracker = AmplitudeEventTracker()
 
 
 @dp.message(F.text == "/start")
 async def start_handler(message: Message):
     """Say hello to the user."""
+    event_tracker.track_event("Start bot", str(message.from_user.id))
     await message.answer(f"Hello, {message.from_user.first_name}")
+
+
+@dp.message(F.photo)
+async def photo_message_handler(message: Message):
+    logging.info("Get photo file")
+    photo_file_name = await BotFileManager.get_photo_file(bot, message.photo)
+
+    logging.info("Get mood by photo")
+    mood_text = await AI.ai_photo_manager.get_mood_by_photo(photo_file_name)
+    if mood_text is not None:
+        logging.info("Text of mood to speech translation")
+        mood_voice = await ai.text_to_speech(text=mood_text, file_name=photo_file_name)
+
+        logging.info("Send voice of mood")
+        await bot.send_voice(message.chat.id, mood_voice, reply_to_message_id=message.message_id)
+    else:
+        await message.reply("Unfortunately, I can't determine the mood in the photo")
+
+    event_tracker.track_event("Mood by photo", str(message.from_user.id))
+    await BotFileManager.remove_files([photo_file_name])
 
 
 @dp.message(F.voice)
@@ -61,14 +84,17 @@ async def voice_message_handler(message: Message):
         logging.error(f'Exception: {str(e)}')
         await message.reply(str(e))
     finally:
+        event_tracker.track_event("Voice question", str(message.from_user.id))
+
         logging.info(f'Remove temporary files with such extensions as .wav, .mp3')
-        await BotFileManager.remove_voice_files(file_names)
+        await BotFileManager.remove_files(file_names)
 
 
 @dp.message()
 async def default_handler(message: Message):
     """Handler for all unidentified commands."""
-    await message.answer("I don't understand u :(")
+    event_tracker.track_event("Unknown command", str(message.from_user.id))
+    await message.answer("I don't understand u :(\nSend me voice message")
 
 
 async def main():
