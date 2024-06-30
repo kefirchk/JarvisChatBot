@@ -1,5 +1,5 @@
 AI_NAME = 'Jarvis'
-GPT_MODEL = 'gpt-4o'
+GPT_MODEL = 'gpt-4-turbo-preview'
 COMMON_ASSISTANT_INSTRUCTIONS = """You are a chat assistant. You can answer questions and participate in the 
                                 conversation. Analyze the user's communications and try to determine the user's
                                 core values based on your communication. If any values are found, call the 
