@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "${REDIS_PORT}:6379"
+
+  telegram_bot:
+    #build: .
+    image: jarvis_telegram_bot:latest
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      REDIS_HOST: redis
+      DB_HOST: postgres
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}

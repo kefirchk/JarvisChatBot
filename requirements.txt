@@ -2,10 +2,10 @@ aiogram==3.7.0
 openai==1.34.0
 pydub==0.25.1
 pydantic==2.7.4
-pydantic-settings
+pydantic-settings==2.3.3
 python-dotenv==1.0.1
 SQLAlchemy==2.0.31
 alembic==1.13.1
-asyncpg
+asyncpg==0.29.0
 amplitude-analytics==1.1.4
 redis==5.0.7
