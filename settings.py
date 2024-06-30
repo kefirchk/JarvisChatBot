@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     REDIS_HOST: str = Field(env_prefix="REDIS_HOST")
     REDIS_PORT: str = Field(env_prefix="REDIS_PORT")
+    REDIS_PASS: str = Field(env_prefix="REDIS_PASS")
 
     @property
     def DATABASE_URL_asyncpg(self):

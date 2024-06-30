@@ -25,6 +25,7 @@ Create a **.env** file in the project directory and fill it with your data:
     AMPLITUDE_API_KEY          - api key for amplitude analytics
     REDIS_HOST                 - ip address for Redis
     REDIS_PORT                 - port for Redis
+    REDIS_PASS                 - password for Redis
 
 ***Step 3:***
 
