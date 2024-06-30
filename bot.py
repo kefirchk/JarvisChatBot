@@ -99,6 +99,7 @@ async def default_handler(message: Message):
 
 async def main():
     await ai.init_assistant(settings.ASSISTANT_ID)
+    await ai.update_assistant()
     logging.basicConfig(level=logging.INFO)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

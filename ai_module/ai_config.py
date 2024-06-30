@@ -1,8 +1,15 @@
 AI_NAME = 'Jarvis'
-ASSISTANT_INSTRUCTIONS = """You are a chat assistant. You can answer questions and participate in the 
-                            conversation. Analyze the user's communications and try to determine the user's core values 
-                            based on your communication. If any values are found, call the save_value function.
-                            After calling the save_value function, continue the normal dialogue with the user."""
+GPT_MODEL = 'gpt-4o'
+COMMON_ASSISTANT_INSTRUCTIONS = """You are a chat assistant. You can answer questions and participate in the 
+                                conversation. Analyze the user's communications and try to determine the user's
+                                core values based on your communication. If any values are found, call the 
+                                save_value function. After calling the save_value function, continue the normal 
+                                dialogue with the user."""
+
+FILE_SEARCH_INSTRUCTIONS = """If a user asks a question about anxiety, then use the file_search function 
+                            to find the answer After answering, add in Russian: the information was taken from 
+                            'here is the file name where you got the information from'."""
+
 AI_TOOLS = {
     'IS_VALID_VALUE':
         {

@@ -1,6 +1,6 @@
 import json
 import logging
-from .ai_config import AI_TOOLS
+from .ai_config import AI_TOOLS, GPT_MODEL
 from database import Database
 
 
@@ -62,7 +62,7 @@ class AIValueManager:
         tools = [AI_TOOLS['IS_VALID_VALUE']]
         try:
             response = await self._client.chat.completions.create(
-                model="gpt-4", messages=messages, tools=tools,
+                model=GPT_MODEL, messages=messages, tools=tools,
                 tool_choice={"type": "function", "function": {"name": "is_valid_value"}}
             )
             tool_calls = response.choices[0].message.tool_calls
