@@ -4,6 +4,7 @@ from openai.types.beta.assistant import Assistant
 
 from settings import settings
 from aiogram.types import FSInputFile
+from aiogram.fsm.context import FSMContext
 from .ai_value_manager import AIValueManager
 from .ai_photo_manager import AIPhotoManager
 from .ai_config import AI_TOOLS, COMMON_ASSISTANT_INSTRUCTIONS, FILE_SEARCH_INSTRUCTIONS, AI_NAME, GPT_MODEL
@@ -51,10 +52,30 @@ class AI:
         voice_file = FSInputFile(file_name)
         return voice_file
 
+    @staticmethod
+    async def create_thread(state: FSMContext, user_id):
+        thread = None
+        data = await state.get_data()
+        saved_thread_id = data.get(str(user_id))
+
+        try:
+            if saved_thread_id is None:
+                thread = await AI._client.beta.threads.create()
+                await state.update_data({
+                    str(user_id): str(thread.id)
+                })
+            else:
+                thread = await AI._client.beta.threads.retrieve(saved_thread_id)
+        except Exception as e:
+            print(f"Failed to create thread for user with ID={user_id}: {e}")
+
+        return thread
+
     @classmethod
     async def get_answer(cls, question: str, user_info: dict):
         """Get answer on the question"""
-        ai_thread = await AI._client.beta.threads.create()
+        ai_thread = await AI.create_thread(user_info['state'], user_info['user_id'])
+
         await AI._client.beta.threads.messages.create(thread_id=ai_thread.id, role='user', content=question)
         run = await AI._client.beta.threads.runs.create_and_poll(
             thread_id=ai_thread.id, assistant_id=AI._assistant.id, tool_choice='required'

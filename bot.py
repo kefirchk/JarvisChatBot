@@ -7,10 +7,12 @@ from settings import settings
 from bot_module import BotFileManager
 from ai_module import AI
 from amplitude_module import AmplitudeEventTracker
+from aiogram.fsm.context import FSMContext
+from memory_storage import storage
 
 
 bot = Bot(settings.TELEGRAM_BOT_TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(storage=storage)
 ai = AI()
 event_tracker = AmplitudeEventTracker()
 
@@ -43,13 +45,14 @@ async def photo_message_handler(message: Message):
 
 
 @dp.message(F.voice)
-async def voice_message_handler(message: Message):
+async def voice_message_handler(message: Message, state: FSMContext):
     """Receives voice messages and answers to them."""
     file_names = []
     user_info = {
         'user_id': message.from_user.id,
         'first_name': message.from_user.first_name,
-        'last_name': message.from_user.last_name
+        'last_name': message.from_user.last_name,
+        'state': state
     }
 
     logging.info(f'Get voice file from {message.from_user.first_name} {message.from_user.last_name}')

@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     DB_PASS: str = Field(env_prefix="DB_PASS")
     DB_NAME: str = Field(env_prefix="DB_NAME")
 
+    REDIS_HOST: str = Field(env_prefix="REDIS_HOST")
+    REDIS_PORT: str = Field(env_prefix="REDIS_PORT")
+
     @property
     def DATABASE_URL_asyncpg(self):
         # DSN
